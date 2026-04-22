@@ -1,173 +1,94 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const secMetas = document.getElementById('sec-metas');
-  const form = secMetas.querySelector('form');
-  const select = secMetas.querySelector('select');
-  const inputHoras = secMetas.querySelector('input[type="number"]');
-  const lista = secMetas.querySelector('.lista-itens');
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('#sec-metas form');
+  const select = document.querySelector('#sec-metas select');
+  const listItems = document.querySelector('#sec-metas .lista-itens');
 
-  let metas = JSON.parse(localStorage.getItem('studytrack_metas')) || [];
-<<<<<<< HEAD
-  const salvar = () =>
-    localStorage.setItem('studytrack_metas', JSON.stringify(metas));
+  const erro = (el, msg) => {
+    const label = document.createElement('label');
+    label.className = 'erro-message';
+    label.textContent = msg;
+    Object.assign(label.style, { color: '#c55a5a', fontSize: '0.85rem', marginTop: '6px', display: 'block' });
+    el.insertAdjacentElement('afterend', label);
+  };
+
+  const limparErro = (el) => {
+    const e = el.parentElement?.querySelector('.erro-message') || el.nextElementSibling;
+    if (e?.classList.contains('erro-message')) e.remove();
+  };
 
   const atualizarSelect = () => {
-    const idsComMeta = metas.map((m) => m.disciplinaIndex);
-    select.innerHTML = '<option value="">Selecione uma disciplina...</option>';
-
-    const disciplinas = [
-      ...document.querySelectorAll('[data-id="discipline"]')
-    ];
-
-    if (!disciplinas.length) {
-      select.insertAdjacentHTML(
-        'beforeend',
-        '<option disabled>— Nenhuma disciplina cadastrada —</option>'
-      );
-=======
-  const salvar = () => localStorage.setItem('studytrack_metas', JSON.stringify(metas));
-
-  // Atualiza disciplinas no select
-  const atualizarSelect = () => {
-    const idsComMeta = metas.map(m => m.disciplinaIndex);
-    select.innerHTML = '<option value="">Selecione uma disciplina...</option>';
-
     const disciplinas = [...document.querySelectorAll('[data-id="discipline"]')];
+    const comMeta = [...listItems.querySelectorAll('[data-meta-nome]')].map(el => el.dataset.metaNome);
+    const anterior = select.value;
+
+    select.innerHTML = '<option value="">Selecione uma disciplina...</option>';
 
     if (!disciplinas.length) {
       select.insertAdjacentHTML('beforeend', '<option disabled>— Nenhuma disciplina cadastrada —</option>');
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
       return;
     }
 
-    disciplinas.forEach((el, i) => {
-<<<<<<< HEAD
-      const nome =
-        el.getAttribute('data-discipline-nome') || `Disciplina ${i + 1}`;
-      const temMeta = idsComMeta.includes(i);
-      select.insertAdjacentHTML(
-        'beforeend',
-        `
-        <option value="${i}" ${temMeta ? 'disabled' : ''}>
-          ${nome}${temMeta ? ' (já possui meta)' : ''}
-        </option>
-      `
+    disciplinas.forEach(el => {
+      const nome = el.getAttribute('discipline-name');
+      if (!nome) return;
+      const temMeta = comMeta.includes(nome);
+      select.insertAdjacentHTML('beforeend',
+        `<option value="${nome}" ${temMeta ? 'disabled' : ''}>${nome}${temMeta ? ' (já possui meta)' : ''}</option>`
       );
     });
+
+    select.value = anterior;
   };
 
-  document
-    .querySelectorAll('.nav-btn')
-    .forEach((btn) =>
-      btn.addEventListener('click', () => setTimeout(atualizarSelect, 100))
-    );
-
-=======
-      const nome = el.getAttribute('data-discipline-nome') || `Disciplina ${i + 1}`;
-      const temMeta = idsComMeta.includes(i);
-      select.insertAdjacentHTML('beforeend', `
-        <option value="${i}" ${temMeta ? 'disabled' : ''}>
-          ${nome}${temMeta ? ' (já possui meta)' : ''}
-        </option>
-      `);
-    });
-  };
-
-  // Gatilho: atualiza ao navegar
   document.querySelectorAll('.nav-btn').forEach(btn =>
     btn.addEventListener('click', () => setTimeout(atualizarSelect, 100))
   );
+  new MutationObserver(atualizarSelect)
+    .observe(document.querySelector('#sec-disciplinas .lista-itens'), { childList: true, subtree: true });
 
-  // Renderiza lista de metas
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
-  const renderizarMetas = () => {
-    lista.innerHTML = '';
+  select.addEventListener('change', () => limparErro(select));
 
-    if (!metas.length) {
-      lista.innerHTML = '<p class="small-text">Nenhuma meta cadastrada.</p>';
-      return;
-    }
-
-    metas.forEach(({ id, disciplina, horas }) => {
-<<<<<<< HEAD
-      lista.insertAdjacentHTML(
-        'beforeend',
-        `
-=======
-      lista.insertAdjacentHTML('beforeend', `
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
-        <div class="item-lista">
-          <span><strong>${disciplina}</strong> — Meta: ${horas}h/semana</span>
-          <button class="remover-btn" data-id="${id}">
-            <i class="fas fa-trash"></i> Remover
-          </button>
-        </div>
-<<<<<<< HEAD
-      `
-      );
-    });
-  };
-
-  lista.addEventListener('click', (e) => {
-    const btn = e.target.closest('.remover-btn');
-    if (!btn) return;
-    metas = metas.filter((m) => m.id !== Number(btn.dataset.id));
-=======
-      `);
-    });
-  };
-
-  // Remover meta via delegação de evento
-  lista.addEventListener('click', (e) => {
-    const btn = e.target.closest('.remover-btn');
-    if (!btn) return;
-    metas = metas.filter(m => m.id !== Number(btn.dataset.id));
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
-    salvar();
-    renderizarMetas();
-    atualizarSelect();
-  });
-
-<<<<<<< HEAD
-=======
-  // Salvar meta
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const disciplinaIndex = Number(select.value);
-    const horas = parseFloat(inputHoras.value);
-<<<<<<< HEAD
-    const disciplinas = [
-      ...document.querySelectorAll('[data-id="discipline"]')
-    ];
+    const inputHoras = form.querySelector('input[type="number"]');
+    const nome = select.value;
+    const horas = inputHoras.value;
 
-    if (select.value === '') return alert('Selecione uma disciplina.');
-    if (!horas || horas <= 0)
-      return alert('Digite uma quantidade de horas válida.');
+    limparErro(select);
+    limparErro(inputHoras);
 
-    const nome =
-      disciplinas[disciplinaIndex]?.getAttribute('data-discipline-nome') ||
-      `Disciplina ${disciplinaIndex + 1}`;
-=======
-    const disciplinas = [...document.querySelectorAll('[data-id="discipline"]')];
+    let hasError = false;
+    if (!nome)  { erro(select, 'Selecione uma disciplina'); hasError = true; }
+    if (!horas) { erro(inputHoras, 'Informe as horas meta'); hasError = true; }
+    else if (isNaN(horas) || horas <= 0){ erro(inputHoras, 'Digite um número válido'); hasError = true; }
+    if (hasError) return;
 
-    if (select.value === '') return alert('Selecione uma disciplina.');
-    if (!horas || horas <= 0) return alert('Digite uma quantidade de horas válida.');
+    listItems.querySelector('.small-text')?.remove();
 
-    const nome = disciplinas[disciplinaIndex]?.getAttribute('data-discipline-nome') || `Disciplina ${disciplinaIndex + 1}`;
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
+    const card = document.createElement('div');
+    card.className = 'item-lista';
+    card.dataset.metaNome = nome;
+    Object.assign(card.style, { backgroundColor: '#e65c5c', border: '2px solid #c92c3a', borderLeft: '6px solid #e65c5c' });
+    card.innerHTML = `
+      <div>
+        <strong style="color:white">${nome}</strong>
+        <p style="color:white;font-size:0.85rem;margin-top:4px">Meta: ${horas}h/semana</p>
+      </div>
+      <button type="button" class="remover-btn" style="background:#fff;color:#e65c5c">Remover</button>
+    `;
 
-    metas.push({ id: Date.now(), disciplinaIndex, disciplina: nome, horas });
-    salvar();
-    renderizarMetas();
-    atualizarSelect();
+    card.querySelector('.remover-btn').addEventListener('click', () => {
+      card.remove();
+      atualizarSelect();
+      if (!listItems.querySelector('.item-lista'))
+        listItems.innerHTML = '<p class="small-text">Nenhuma meta cadastrada.</p>';
+    });
+
+    listItems.appendChild(card);
     form.reset();
+    atualizarSelect();
   });
 
-<<<<<<< HEAD
-=======
-  // Inicializa
->>>>>>> 3a7e18910d6dc5f403f899ebdcd69224b5ba5d4a
   atualizarSelect();
-  renderizarMetas();
 });
