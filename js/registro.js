@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderizarRegistros = () => {
     lista.innerHTML = '';
     if (registros.length === 0) {
-      lista.innerHTML = '<p class="small-text">Nenhum registro ainda.</p>';
+      lista.innerHTML = '<p class="small-text">Nenhum registro ainda !</p>';
       return;
     }
 
